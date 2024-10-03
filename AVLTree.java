@@ -113,7 +113,7 @@ class LUC_AVLTree {
     /**
      *  Method isBST 
      *
-     *  The method determines if a supplied tree node meets the requirements of
+     *  The method determines if a supplied tree node meets the requirements
      *  of a Binary Search Tree (BST)
      *
      *  Return true for meeting BST requirements, else false
@@ -169,7 +169,7 @@ class LUC_AVLTree {
         int leftMin  = minValue(node.leftChild);
         int rightMin = minValue(node.rightChild);
 
-        return Math.max(value, Math.max(leftMin, rightMin));
+        return Math.max(value, Math.min(leftMin, rightMin));
     }
 
 
@@ -342,25 +342,67 @@ class LUC_AVLTree {
      */
 
     private Node deleteElement(int value, Node node) {
+        if ( node == null){
+            return null;
+        }
 
-        /*
-         * ADD CODE HERE
-         * 
-         * NOTE, that you should use the existing coded private methods
-         * in this file, which include:
-         *      - minValueNode,
-         *      - getMaxHeight,
-         *      - getHeight,
-         *      - getBalanceFactor,
-         *      - LLRotation
-         *      - RRRotation,
-         *      - LRRotation,
-         *      - RLRotation.
-         *
-         * To understand what each of these methods do, see the method prologues and
-         * code for each. You can also look at the method InsertElement, as it has do
-         * do many of the same things as this method.
-         */
+        if (value< node.value){
+            node.leftChild = deleteElement(value, node.leftChild);}
+        else if(value > node.value) {
+            node.rightChild = deleteElement(value, node.rightChild);
+
+        }
+        else {
+
+            if (node.leftChild == null || node.rightChild == null) {
+                // one child
+                if (node.leftChild != null) {
+                    node = node.leftChild;
+                } else{
+                    node = node.rightChild;
+                }
+
+            } else {
+                // two children
+                Node min = minValueNode(node.rightChild);
+                node.value = min.value;
+                //delete node with min
+                node.rightChild = deleteElement(min.value, node.rightChild);
+            }
+        }
+
+        // when only one node in the tree
+        if (node == null) {
+            return node;
+        }
+
+
+
+
+        node.height = 1 + getMaxHeight(getHeight(node.leftChild), getHeight(node.rightChild));
+        int bf = getBalanceFactor(node);
+        if (bf > 1 && getBalanceFactor(node.leftChild) >= 0) {
+            return LLRotation(node);
+        }
+        if (bf < -1 && getBalanceFactor(node.rightChild) <= 0) {
+            return RRRotation(node);
+        }
+
+        if (bf > 1 && getBalanceFactor(node.leftChild) < 0){
+            node.leftChild = RRRotation(node.leftChild);
+            return LLRotation(node);
+        }
+
+        if (bf < -1 && getBalanceFactor(node.rightChild) > 0) {
+            node.rightChild = LLRotation(node.rightChild);
+            return RRRotation(node);
+        }
+
+
+
+
+
+
 
         return node;
     }
@@ -426,7 +468,7 @@ class LUC_AVLTree {
      *        / \                        /   \    /  \
      *       zl  zr                     zr   zl  yr  xr
      *
-     *  @param X - node that is out of balance
+     *  @param  x- node that is out of balance
      *
      *  @return Y - new top node of [sub]tree after rotation
      */
@@ -463,7 +505,7 @@ class LUC_AVLTree {
      *           / \                 /   \    /  \
      *          zl  zr              yl   zl  zr  xr
      *
-     *  @param X - node that is out of balance
+     *  @param x - node that is out of balance
      *
      *  @return Z - new top of the [sub]tree after rotation
      */
@@ -503,7 +545,7 @@ class LUC_AVLTree {
      *                     / \                 /   \    /  \
      *                    zl  zr              xl   yl  zl  zr
      *
-     *  @param X - node that is out of balance
+     *  @param x - node that is out of balance
      *
      *  @return Y - new top node of [sub]tree after rotation
      */
@@ -539,7 +581,7 @@ class LUC_AVLTree {
      *          / \                       /   \    /  \
      *         zl  zr                    xl   zl  zr  yr
      *
-     *  @param X - node that is out of balance
+     *  @param x - node that is out of balance
      *
      *  @return Z - new top of the [sub]tree after rotation
      */
